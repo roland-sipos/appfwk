@@ -13,6 +13,7 @@ FanOutDAQModule<ValueType>::FanOutDAQModule(std::string name)
   , wait_interval_us_(std::numeric_limits<size_t>::max())
 {
   register_command(command::Conf::name, &FanOutDAQModule<ValueType>::do_configure);
+  register_command(command::Scrap::name, &FanOutDAQModule<ValueType>::do_unconfigure);
   register_command(command::Start::name, &FanOutDAQModule<ValueType>::do_start);
   register_command(command::Stop::name, &FanOutDAQModule<ValueType>::do_stop);
 }
@@ -48,6 +49,14 @@ FanOutDAQModule<ValueType>::do_configure(data_t cfg)
 
   wait_interval_us_ = cfg.value<int>("wait_interval_us", 10000);
   queueTimeout_ = std::chrono::milliseconds(cfg.value<int>("queue_timeout_ms", 100));
+}
+
+template<typename ValueType>
+void
+FanOutDAQModule<ValueType>::do_unconfigure(data_t)
+{
+  inputQueue_.reset(nullptr);
+  outputQueues_.clear();
 }
 
 template<typename ValueType>

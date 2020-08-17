@@ -94,6 +94,7 @@ public:
 private:
   // Commands
   void do_configure(data_t cmddat);
+  void do_unconfigure(data_t cmddat);
   void do_start(data_t cmddat);
   void do_stop(data_t cmddat);
 

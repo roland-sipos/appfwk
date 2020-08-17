@@ -89,6 +89,7 @@ BOOST_AUTO_TEST_CASE(NonCopyableTypeTest)
 
   DAQModule::data_t start_data = {{"run",42}}; // nb: not official schema!
   DAQModule::data_t stop_data = {}; // nb: not official schema!
+  DAQModule::data_t scrap_data = {}; // nb: not official schema!
 
   // This test assumes RoundRobin mode. Once configurability is implemented,
   // we'll have to configure it appropriately.
@@ -138,6 +139,8 @@ BOOST_AUTO_TEST_CASE(NonCopyableTypeTest)
   } catch (const dunedaq::appfwk::QueueTimeoutExpired& ex) {
   }
   BOOST_REQUIRE_EQUAL(res.data, 2);
+
+  foum.execute_command(ccm::Scrap::name, scrap_data);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
