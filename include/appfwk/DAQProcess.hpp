@@ -28,9 +28,9 @@ namespace appfwk {
  * @brief The DAQProcess class is the central container for DAQModules and
  * Queues.
  *
- * DAQProcess receives commands from CCM and distributes them to the DAQModules
- * in the order defined in the CommandOrderMap received from the ModuleList
- * during register_modules.
+ * DAQProcess receives commands (eg ultimately from CCM) and distributes 
+ * them to the DAQModules in the order defined in the CommandOrderMap 
+ * received from the ModuleList during register_modules.
  */
 class DAQProcess
 {
@@ -65,7 +65,7 @@ public:
    * that list in the order specified. Then, any remaining DAQModules will
    * receive the command in an unspecified order.
    */
-  void execute_command(std::string const& cmd, std::vector<std::string> const& args = {}) const;
+  void execute_command(std::string const& cmd, DAQModule::data_t data) const;
   /**
    * @brief Start the CommandFacility listener
    * @return Return code from listener
@@ -86,9 +86,9 @@ protected:
    * @brief Call a module's execute_command function
    * @param module Module to call execute_command on
    * @param cmd Command name
-   * @param args Command arguments
+   * @param cmddata Qualifying command data
    */
-  void call_command_on_module(DAQModule& module, const std::string& cmd, std::vector<std::string> const& args) const;
+  void call_command_on_module(DAQModule& module, const std::string& cmd, DAQModule::data_t data) const;
 
 private:
   DAQModuleMap daqModuleMap_;       ///< String alias for each DAQModule
@@ -138,3 +138,7 @@ ERS_DECLARE_ISSUE_BASE(appfwk,          ///< Namespace
 
 } // namespace dunedaq
 #endif // APPFWK_INCLUDE_APPFWK_DAQPROCESS_HPP_
+
+// Local Variables:
+// c-basic-offset: 2
+// End:

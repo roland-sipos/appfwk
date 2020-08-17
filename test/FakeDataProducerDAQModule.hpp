@@ -46,13 +46,11 @@ public:
   FakeDataProducerDAQModule& operator=(FakeDataProducerDAQModule&&) =
     delete; ///< FakeDataProducerDAQModule is not move-assignable
 
-  void init() override;
-
 private:
   // Commands
-  void do_configure(const std::vector<std::string>& args);
-  void do_start(const std::vector<std::string>& args);
-  void do_stop(const std::vector<std::string>& args);
+  void do_configure(data_t data);
+  void do_start(data_t data);
+  void do_stop(data_t data);
 
   // Threading
   ThreadHelper thread_;

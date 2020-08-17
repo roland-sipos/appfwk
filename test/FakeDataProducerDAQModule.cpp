@@ -8,6 +8,7 @@
  */
 
 #include "FakeDataProducerDAQModule.hpp"
+#include "appfwk/CcmInterface.hpp"
 
 #include <chrono>
 #include <string>
@@ -30,36 +31,31 @@ FakeDataProducerDAQModule::FakeDataProducerDAQModule(const std::string& name)
   , outputQueue_(nullptr)
   , queueTimeout_(100)
 {
-
-  register_command("configure", &FakeDataProducerDAQModule::do_configure);
-  register_command("start", &FakeDataProducerDAQModule::do_start);
-  register_command("stop", &FakeDataProducerDAQModule::do_stop);
+  register_command(command::Conf::name, &FakeDataProducerDAQModule::do_configure);
+  register_command(command::Start::name, &FakeDataProducerDAQModule::do_start);
+  register_command(command::Stop::name, &FakeDataProducerDAQModule::do_stop);
 }
 
 void
-FakeDataProducerDAQModule::init()
+FakeDataProducerDAQModule::do_configure(data_t cfg)
 {
-  outputQueue_.reset(new DAQSink<std::vector<int>>(get_config()["output"].get<std::string>()));
+  outputQueue_.reset(new DAQSink<std::vector<int>>(cfg["output"].get<std::string>()));
+
+  nIntsPerVector_ = cfg.value<int>("nIntsPerVector", 10);
+  starting_int_ = cfg.value<int>("starting_int", -4);
+  ending_int_ = cfg.value<int>("ending_int", 14);
+  wait_between_sends_ms_ = cfg.value<int>("wait_between_sends_ms", 1000);
+  queueTimeout_ = std::chrono::milliseconds(cfg.value<int>("queue_timeout_ms", 100));
 }
 
 void
-FakeDataProducerDAQModule::do_configure(const std::vector<std::string>& /*args*/)
-{
-  nIntsPerVector_ = get_config().value<int>("nIntsPerVector", 10);
-  starting_int_ = get_config().value<int>("starting_int", -4);
-  ending_int_ = get_config().value<int>("ending_int", 14);
-  wait_between_sends_ms_ = get_config().value<int>("wait_between_sends_ms", 1000);
-  queueTimeout_ = std::chrono::milliseconds(get_config().value<int>("queue_timeout_ms", 100));
-}
-
-void
-FakeDataProducerDAQModule::do_start(const std::vector<std::string>& /*args*/)
+FakeDataProducerDAQModule::do_start(data_t /*args*/)
 {
   thread_.start_working_thread();
 }
 
 void
-FakeDataProducerDAQModule::do_stop(const std::vector<std::string>& /*args*/)
+FakeDataProducerDAQModule::do_stop(data_t /*args*/)
 {
   thread_.stop_working_thread();
 }
@@ -124,3 +120,7 @@ FakeDataProducerDAQModule::do_work(std::atomic<bool>& running_flag)
 } // namespace dunedaq
 
 DEFINE_DUNE_DAQ_MODULE(dunedaq::appfwk::FakeDataProducerDAQModule)
+
+// Local Variables:
+// c-basic-offset: 2
+// End:

@@ -20,8 +20,8 @@
 #include <vector>
 
 #ifndef EXTERN_C_FUNC_DECLARE_START
-#define EXTERN_C_FUNC_DECLARE_START                                                                                    \
-  extern "C"                                                                                                           \
+#define EXTERN_C_FUNC_DECLARE_START  \
+  extern "C"                         \
   {
 #endif
 
@@ -29,12 +29,12 @@
  * @brief Declare the function that will be called by the plugin loader
  * @param klass Class to be defined as a DUNE Command Facility
  */
-#define DEFINE_DUNE_COMMAND_FACILITY(klass)                                                                            \
-  EXTERN_C_FUNC_DECLARE_START                                                                                          \
-  std::unique_ptr<dunedaq::appfwk::CommandFacility> make()                                                             \
-  {                                                                                                                    \
-    return std::unique_ptr<dunedaq::appfwk::CommandFacility>(new klass());                                             \
-  }                                                                                                                    \
+#define DEFINE_DUNE_COMMAND_FACILITY(klass)                                 \
+  EXTERN_C_FUNC_DECLARE_START                                               \
+  std::unique_ptr<dunedaq::appfwk::CommandFacility> make()                  \
+  {                                                                         \
+    return std::unique_ptr<dunedaq::appfwk::CommandFacility>(new klass());  \
+  }                                                                         \
   }
 
 namespace dunedaq::appfwk {

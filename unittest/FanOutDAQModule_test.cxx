@@ -8,6 +8,7 @@
 
 #include "appfwk/FanOutDAQModule.hpp"
 #include "appfwk/QueueRegistry.hpp"
+#include "appfwk/CcmInterface.hpp"
 
 #define BOOST_TEST_MODULE FanOutDAQModule_test // NOLINT
 
@@ -19,6 +20,7 @@
 
 constexpr auto queue_timeout = std::chrono::milliseconds(10);
 using namespace dunedaq::appfwk;
+namespace ccm = dunedaq::appfwk::command;
 
 BOOST_AUTO_TEST_SUITE(FanOutDAQModule_test)
 
@@ -54,10 +56,8 @@ BOOST_AUTO_TEST_CASE(Configure)
 {
   dunedaq::appfwk::FanOutDAQModule<dunedaq::appfwk::NonCopyableType> foum("configure_test");
 
-  auto module_config = R"({"input": "input", "fanout_mode": "round_robin", "outputs": []})"_json;
-  foum.do_init(module_config);
-
-  foum.execute_command("configure");
+  auto conf_data = R"({"input": "input", "fanout_mode": "round_robin", "outputs": []})"_json;
+  foum.execute_command(ccm::Conf::name, conf_data);
 }
 
 BOOST_AUTO_TEST_CASE(InvalidConfigure)
@@ -65,30 +65,36 @@ BOOST_AUTO_TEST_CASE(InvalidConfigure)
   dunedaq::appfwk::FanOutDAQModule<dunedaq::appfwk::NonCopyableType> foum("invalid_configure_test");
 
   // Wrongly-capitalized fanout_mode
-  auto module_config = R"({"input": "input", "fanout_mode": "Round_robin", "outputs": []})"_json;
-  foum.do_init(module_config);
-
-  BOOST_REQUIRE_THROW(foum.execute_command("configure"), dunedaq::appfwk::ConfigureFailed);
+  //auto conf_data = R"({"input": "input", "fanout_mode": "Round_robin", "outputs": []})"_json;
+  nlohmann::json conf_data = {
+      {"input", "input"},
+      {"fanout_mode", "Round_robin"},
+      {"outputs", nlohmann::json::array()}};
+  BOOST_REQUIRE_THROW(foum.execute_command(ccm::Conf::name, conf_data),
+                      dunedaq::appfwk::ConfigureFailed);
 }
 
 BOOST_AUTO_TEST_CASE(NonCopyableTypeTest)
 {
   dunedaq::appfwk::FanOutDAQModule<dunedaq::appfwk::NonCopyableType> foum("noncopyable_test");
 
-  nlohmann::json module_config = R"(
+  DAQModule::data_t conf_data = R"(
         {
                     "input": "input",
                     "outputs": ["output1", "output2" ],
                     "fanout_mode": "round_robin",
                     "wait_interval": 10000
         }
-    )"_json;
-  foum.do_init(module_config);
+    )"_json; // "
+
+  DAQModule::data_t start_data = {{"run",42}}; // nb: not official schema!
+  DAQModule::data_t stop_data = {}; // nb: not official schema!
 
   // This test assumes RoundRobin mode. Once configurability is implemented,
   // we'll have to configure it appropriately.
-  foum.execute_command("configure");
-  foum.execute_command("start");
+  // no Init command for foum.
+  foum.execute_command(ccm::Conf::name, conf_data);
+  foum.execute_command(ccm::Start::name, start_data);
 
   DAQSink<NonCopyableType> inputbuf("input");
   DAQSource<NonCopyableType> outputbuf1("output1");
@@ -110,7 +116,7 @@ BOOST_AUTO_TEST_CASE(NonCopyableTypeTest)
   }
   auto after_sleep = std::chrono::steady_clock::now();
 
-  foum.execute_command("stop");
+  foum.execute_command(ccm::Stop::name, stop_data);
   BOOST_TEST_MESSAGE(
     "It took " << std::chrono::duration_cast<std::chrono::milliseconds>(after_push - start_push).count()
                << " ms to push values onto the input queue");

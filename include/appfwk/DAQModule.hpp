@@ -2,10 +2,12 @@
  * @file DAQModule.hpp DAQModule Class Interface
  *
  * The DAQModule interface defines the required functionality for all
- * DAQModules that use the Application Framework. DAQModules are defined as "a
- * set of code which performs a specific task". They are connected to one
- * another within a DAQ Application by Queue instances, in a graph defined by a
- * ModuleList.
+ * DAQModules that use the Application Framework. DAQModules are
+ * defined as "a set of code which performs a specific task". They may
+ * be connected to one another within a DAQ Application by Queue
+ * instances, in a graph defined by a ModuleList.  They may respond to
+ * a named command (eg see @ref CcmCommands.hpp) by registering a
+ * method as a command handler.
  *
  * This interface is intended to define only absolutely necessary methods to be
  * able to support the many different tasks that DAQModules will be asked to
@@ -42,12 +44,12 @@
  * @brief Declare the function that will be called by the plugin loader
  * @param klass Class to be defined as a DUNE DAQ Module
  */
-#define DEFINE_DUNE_DAQ_MODULE(klass)                                                                                  \
-  EXTERN_C_FUNC_DECLARE_START                                                                                          \
-  std::shared_ptr<dunedaq::appfwk::DAQModule> make(std::string n)                                                      \
-  {                                                                                                                    \
-    return std::shared_ptr<dunedaq::appfwk::DAQModule>(new klass(n));                                                  \
-  }                                                                                                                    \
+#define DEFINE_DUNE_DAQ_MODULE(klass)                                 \
+  EXTERN_C_FUNC_DECLARE_START                                         \
+  std::shared_ptr<dunedaq::appfwk::DAQModule> make(std::string n)     \
+  {                                                                   \
+    return std::shared_ptr<dunedaq::appfwk::DAQModule>(new klass(n)); \
+  }                                                                   \
   }
 
 namespace dunedaq {
@@ -75,58 +77,35 @@ public:
     : NamedObject(name)
   {}
 
-  const nlohmann::json& get_config() const { return configuration_; }
-
-  void do_init(const nlohmann::json& config);
+  using data_t = nlohmann::json;
 
   /**
-   * @brief Execute a command in this DAQModule
-   * @param cmd The command from CCM
-   * @param args Arguments for the command from CCM
-   * @return String with detailed status of the command (future).
+   * @brief Execute a named command on this DAQModule
+   * @param cmd The command name
+   * @param data Qualifying command data.
+   * @return none
    *
-   * execute_command is the single entry point for DAQProcess to pass CCM
-   * commands to DAQModules. The implementation of this function should route
-   * accepted commands to the appropriate functions within the DAQModule.
-   *  Non-accepted commands or failure should return an ERS exception
-   * indicating this result.
+   * execute_command is the single entry point for DAQProcess to pass
+   * commands (eg, originating from CCM) to the DAQModule.
+   * Non-accepted commands or failure should throw an ERS exception.
    */
-  void execute_command(const std::string& name, const std::vector<std::string>& args = {});
+  void execute_command(const std::string& name, data_t data);
 
   std::vector<std::string> get_commands() const;
 
   bool has_command(const std::string& name) const;
 
 protected:
-  /**
-   * @brief      Initializes the module
-   *
-   * Initialisation of the module. Abstract method to be overridden by derived classes.
-   */
-  virtual void init() = 0;
 
   /**
-   * @brief Set the configuration for the DAQModule
-   * @param config JSON Configuration for the DAQModule
-   *
-   * This function is a placeholder; once CCM is implemented more completely, it
-   * will not continue to be part of the application framework. DAQModule
-   * developers should not assume that it will be accessible in the future.
-   */
-  void set_config(const nlohmann::json& config) { configuration_ = config; }
-
-  /**
-   * @brief Registers a mdoule command under the name `cmd`.
-   * Returns whether the command was inserted (false meaning that command `cmd` already exists)
+   * @brief Registers a module method to handle a command named `cmd`.
    */
   template<typename Child>
-  void register_command(const std::string& name, void (Child::*f)(const std::vector<std::string>&));
+  void register_command(const std::string& name, void (Child::*f)(data_t cmddat));
 
 private:
-  using CommandMap_t = std::map<std::string, std::function<void(const std::vector<std::string>&)>>;
+  using CommandMap_t = std::map<std::string, std::function<void(data_t cmddat)>>;
   CommandMap_t commands_;
-
-  nlohmann::json configuration_; ///< JSON configuration for the DAQModule
 };
 
 /**
@@ -204,3 +183,8 @@ ERS_DECLARE_ISSUE_BASE(appfwk,                                ///< Namespace
 #include "detail/DAQModule.hxx"
 
 #endif // APPFWK_INCLUDE_APPFWK_DAQMODULE_HPP_
+
+
+// Local Variables:
+// c-basic-offset: 2
+// End:

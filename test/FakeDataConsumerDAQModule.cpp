@@ -8,7 +8,7 @@
  */
 
 #include "FakeDataConsumerDAQModule.hpp"
-
+#include "appfwk/CcmInterface.hpp"
 #include "TRACE/trace.h"
 #include <ers/ers.h>
 
@@ -31,36 +31,30 @@ FakeDataConsumerDAQModule::FakeDataConsumerDAQModule(const std::string& name)
   , queueTimeout_(100)
   , inputQueue_(nullptr)
 {
-
-  register_command("configure", &FakeDataConsumerDAQModule::do_configure);
-  register_command("start", &FakeDataConsumerDAQModule::do_start);
-  register_command("stop", &FakeDataConsumerDAQModule::do_stop);
+  register_command(command::Conf::name, &FakeDataConsumerDAQModule::do_configure);
+  register_command(command::Start::name, &FakeDataConsumerDAQModule::do_start);
+  register_command(command::Stop::name, &FakeDataConsumerDAQModule::do_stop);
 }
 
 void
-FakeDataConsumerDAQModule::init()
+FakeDataConsumerDAQModule::do_configure(data_t cfg)
 {
-  inputQueue_.reset(new DAQSource<std::vector<int>>(get_config()["input"].get<std::string>()));
+  inputQueue_.reset(new DAQSource<std::vector<int>>(cfg["input"].get<std::string>()));
+
+  nIntsPerVector_ = cfg.value<int>("nIntsPerVector", 10);
+  starting_int_ = cfg.value<int>("starting_int", -4);
+  ending_int_ = cfg.value<int>("ending_int", 14);
+  queueTimeout_ = std::chrono::milliseconds(cfg.value<int>("queue_timeout_ms", 100));
 }
 
 void
-FakeDataConsumerDAQModule::do_configure(const std::vector<std::string>& /*args*/)
-{
-
-  nIntsPerVector_ = get_config().value<int>("nIntsPerVector", 10);
-  starting_int_ = get_config().value<int>("starting_int", -4);
-  ending_int_ = get_config().value<int>("ending_int", 14);
-  queueTimeout_ = std::chrono::milliseconds(get_config().value<int>("queue_timeout_ms", 100));
-}
-
-void
-FakeDataConsumerDAQModule::do_start(const std::vector<std::string>& /*args*/)
+FakeDataConsumerDAQModule::do_start(data_t /*args*/)
 {
   thread_.start_working_thread();
 }
 
 void
-FakeDataConsumerDAQModule::do_stop(const std::vector<std::string>& /*args*/)
+FakeDataConsumerDAQModule::do_stop(data_t /*args*/)
 {
   thread_.stop_working_thread();
 }
@@ -148,3 +142,7 @@ FakeDataConsumerDAQModule::do_work(std::atomic<bool>& running_flag)
 } // namespace dunedaq::appfwk
 
 DEFINE_DUNE_DAQ_MODULE(dunedaq::appfwk::FakeDataConsumerDAQModule)
+
+// Local Variables:
+// c-basic-offset: 2
+// End:

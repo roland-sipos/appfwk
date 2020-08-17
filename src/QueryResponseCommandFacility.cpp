@@ -28,7 +28,8 @@ QueryResponseCommandFacility::listen(const DAQProcess& process) const
         keepGoing = false;
         break;
       } else {
-        process.execute_command(comm);
+        DAQModule::data_t empty;
+        process.execute_command(comm, empty);
       }
     }
   } catch (...) // NOLINT
@@ -43,3 +44,7 @@ QueryResponseCommandFacility::~QueryResponseCommandFacility() = default;
 } // namespace dunedaq::appfwk
 
 DEFINE_DUNE_COMMAND_FACILITY(dunedaq::appfwk::QueryResponseCommandFacility)
+
+// Local Variables:
+// c-basic-offset: 2
+// End:

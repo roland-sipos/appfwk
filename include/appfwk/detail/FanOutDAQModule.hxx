@@ -1,3 +1,4 @@
+#include "appfwk/CcmInterface.hpp"
 
 namespace dunedaq::appfwk {
 
@@ -11,36 +12,29 @@ FanOutDAQModule<ValueType>::FanOutDAQModule(std::string name)
   , outputQueues_()
   , wait_interval_us_(std::numeric_limits<size_t>::max())
 {
-
-  register_command("configure", &FanOutDAQModule<ValueType>::do_configure);
-  register_command("start", &FanOutDAQModule<ValueType>::do_start);
-  register_command("stop", &FanOutDAQModule<ValueType>::do_stop);
+  register_command(command::Conf::name, &FanOutDAQModule<ValueType>::do_configure);
+  register_command(command::Start::name, &FanOutDAQModule<ValueType>::do_start);
+  register_command(command::Stop::name, &FanOutDAQModule<ValueType>::do_stop);
 }
 
 template<typename ValueType>
 void
-FanOutDAQModule<ValueType>::init()
+FanOutDAQModule<ValueType>::do_configure(data_t cfg)
 {
+  // fixme: convert to using templated mixing instead of directly poking dynamic cfg object.
 
-  auto inputName = get_config()["input"].get<std::string>();
+  auto inputName = cfg["input"].get<std::string>();
   TLOG(TLVL_TRACE, "FanOutDAQModule") << get_name() << ": Getting queue with name " << inputName << " as input";
   inputQueue_.reset(new DAQSource<ValueType>(inputName));
-  for (auto& output : get_config()["outputs"]) {
+  for (auto& output : cfg["outputs"]) {
     outputQueues_.emplace_back(new DAQSink<ValueType>(output.get<std::string>()));
   }
-}
 
-template<typename ValueType>
-void
-FanOutDAQModule<ValueType>::do_configure(const std::vector<std::string>& /*args*/)
-{
-  if (get_config().contains("fanout_mode")) {
-    auto modeString = get_config()["fanout_mode"].get<std::string>();
+  if (cfg.contains("fanout_mode")) {
+    auto modeString = cfg["fanout_mode"].get<std::string>();
     if (modeString == "broadcast") {
-
       mode_ = FanOutMode::Broadcast;
     } else if (modeString == "first_available") {
-
       mode_ = FanOutMode::FirstAvailable;
     } else if (modeString == "round_robin") {
       mode_ = FanOutMode::RoundRobin;
@@ -52,20 +46,20 @@ FanOutDAQModule<ValueType>::do_configure(const std::vector<std::string>& /*args*
     mode_ = FanOutMode::RoundRobin;
   }
 
-  wait_interval_us_ = get_config().value<int>("wait_interval_us", 10000);
-  queueTimeout_ = std::chrono::milliseconds(get_config().value<int>("queue_timeout_ms", 100));
+  wait_interval_us_ = cfg.value<int>("wait_interval_us", 10000);
+  queueTimeout_ = std::chrono::milliseconds(cfg.value<int>("queue_timeout_ms", 100));
 }
 
 template<typename ValueType>
 void
-FanOutDAQModule<ValueType>::do_start(const std::vector<std::string>& /*args*/)
+FanOutDAQModule<ValueType>::do_start(data_t /*args*/)
 {
   thread_.start_working_thread();
 }
 
 template<typename ValueType>
 void
-FanOutDAQModule<ValueType>::do_stop(const std::vector<std::string>& /*args*/)
+FanOutDAQModule<ValueType>::do_stop(data_t /*args*/)
 {
   thread_.stop_working_thread();
 }
@@ -133,3 +127,7 @@ FanOutDAQModule<ValueType>::do_work(std::atomic<bool>& running_flag)
 }
 
 } // namespace dunedaq::appfwk
+
+// Local Variables:
+// c-basic-offset: 2
+// End:

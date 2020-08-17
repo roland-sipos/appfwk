@@ -41,8 +41,10 @@ DAQProcess::register_modules(const GraphConstructor& ml)
 }
 
 void
-DAQProcess::execute_command(std::string const& cmd, std::vector<std::string> const& args) const
+DAQProcess::execute_command(std::string const& cmd, DAQModule::data_t data) const
 {
+  // fixme: here we need to implement "command dispatch protocol"
+
   std::unordered_set<std::string> daq_module_list;
   for (auto const& dm : daqModuleMap_) {
     // TODO: Alessandro Thea (Alessandro.Thea@cern.ch), Jun-19-2020. Works, but it's too simple. Needs better handling. Timescale TBD. 
@@ -60,7 +62,7 @@ DAQProcess::execute_command(std::string const& cmd, std::vector<std::string> con
     for (auto const& moduleName : commandOrderMap_.at(cmd)) {
       if (daqModuleMap_.count(moduleName)) {
 
-        call_command_on_module(*daqModuleMap_.at(moduleName), cmd, args);
+        call_command_on_module(*daqModuleMap_.at(moduleName), cmd, data);
 
         daq_module_list.erase(moduleName);
       }
@@ -73,7 +75,7 @@ DAQProcess::execute_command(std::string const& cmd, std::vector<std::string> con
   TLOG(TLVL_TRACE) << "Executing Command " << cmd << " for all remaining DAQModules";
   for (auto const& moduleName : daq_module_list) {
 
-    call_command_on_module(*daqModuleMap_.at(moduleName), cmd, args);
+    call_command_on_module(*daqModuleMap_.at(moduleName), cmd, data);
   }
 }
 
@@ -84,11 +86,11 @@ DAQProcess::listen() const
 }
 
 void
-DAQProcess::call_command_on_module(DAQModule& mod, const std::string& cmd, std::vector<std::string> const& args) const
+DAQProcess::call_command_on_module(DAQModule& mod, const std::string& cmd, DAQModule::data_t data) const
 {
 
   try {
-    mod.execute_command(cmd, args);
+    mod.execute_command(cmd, data);
   } catch (GeneralDAQModuleIssue& ex) {
     ers::error(ex);
   } catch (const std::exception& ex) { 
@@ -97,3 +99,8 @@ DAQProcess::call_command_on_module(DAQModule& mod, const std::string& cmd, std::
   }
 }
 } // namespace dunedaq::appfwk
+
+
+// Local Variables:
+// c-basic-offset: 2
+// End:

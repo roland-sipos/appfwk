@@ -38,9 +38,7 @@ public:
     register_command("stuff", &DummyParentModule::do_stuff);
   }
 
-  void init() final {}
-
-  virtual void do_stuff(const std::vector<std::string>& /*args*/)
+  virtual void do_stuff(data_t /*args*/)
   {
     ers::info(DummyModuleUpdate(ERS_HERE, get_name(), "DummyParentModule do_stuff"));
   };
@@ -53,7 +51,7 @@ public:
     : DummyParentModule(name)
   {}
 
-  void do_stuff(const std::vector<std::string>& /*args*/) override
+  void do_stuff(data_t /*args*/) override
   {
     ers::info(DummyModuleUpdate(ERS_HERE, get_name(), "DummyModule do_stuff"));
   };

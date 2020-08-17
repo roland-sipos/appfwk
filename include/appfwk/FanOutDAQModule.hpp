@@ -85,20 +85,17 @@ public:
    * @param cmd Command from DAQProcess
    * @param args Arguments for the command from DAQProcess
    */
-  // void execute_command(const std::string& cmd, const std::vector<std::string>& args = {}) override;
 
   FanOutDAQModule(const FanOutDAQModule&) = delete;            ///< FanOutDAQModule is not copy-constructible
   FanOutDAQModule& operator=(const FanOutDAQModule&) = delete; ///< FanOutDAQModule is not copy-assignable
   FanOutDAQModule(FanOutDAQModule&&) = delete;                 ///< FanOutDAQModule is not move-constructible
   FanOutDAQModule& operator=(FanOutDAQModule&&) = delete;      ///< FanOutDAQModule is not move-assignable
 
-  void init() override;
-
 private:
   // Commands
-  void do_configure(const std::vector<std::string>& args);
-  void do_start(const std::vector<std::string>& args);
-  void do_stop(const std::vector<std::string>& args);
+  void do_configure(data_t cmddat);
+  void do_start(data_t cmddat);
+  void do_stop(data_t cmddat);
 
   // Type traits handling. Yes, the "U" template parameter is actually
   // necessary, even though it's just an alias to this user module's
@@ -183,3 +180,7 @@ private:
 #include "detail/FanOutDAQModule.hxx"
 
 #endif // APPFWK_INCLUDE_APPFWK_FANOUTDAQMODULE_HPP_
+
+// Local Variables:
+// c-basic-offset: 2
+// End:
