@@ -117,6 +117,9 @@ main(int argc, char* argv[])
   if (args.applicationConfigurationFile != "") {
 
     std::ifstream ifile(args.applicationConfigurationFile);
+    if (!ifile) {
+        throw dunedaq::appfwk::NoConfiguration(ERS_HERE);
+    }
     ifile >> json_config;
   } else {
     throw dunedaq::appfwk::NoConfiguration(ERS_HERE);

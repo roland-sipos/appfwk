@@ -1,9 +1,17 @@
-#ifndef {{model.namespace|replace(".","_")|upper}}_{{model.name|upper}}_NLJS_HPP
-#define {{model.namespace|replace(".","_")|upper}}_{{model.name|upper}}_NLJS_HPP
+/*
+ * This file is 100% generated.  Any manual edits will likely be lost.
+ */
+{% set nsmarker = model.namespace.replace(":","_").replace(".","_").upper() +"_"+ model.name.upper() + "_NLJS_HPP" %}
+#ifndef {{ nsmarker }}
+#define {{ nsmarker }}
 
 {{model.structincs}}
-
 #include <nlohmann/json.hpp>
+
+{% set any_fields = [] %}
+{% for r in model.types if r.type == "any" %}
+{% do any_fields.append(r.name) %}
+{% endfor %}
 
 namespace {{ model.namespace }} {
 
@@ -36,14 +44,19 @@ namespace {{ model.namespace }} {
         from_json(j, ({{b.type}}&)obj);
         {% endfor %}
         {% for f in t.fields if not f.name.startswith("_base_") %}
-        if (j.contains("{{f.name}}"))
-            j.at("{{f.name}}").get_to(obj.{{f.name}});    
+        if (j.contains("{{f.name}}")) {
+            {% if f.type in any_fields %}
+            obj.{{f.name}} = j.at("{{f.name}}");
+            {% else %}
+            j.at("{{f.name}}").get_to(obj.{{f.name}});
+            {% endif %}
+        }
         {% endfor%}
     }
     {% endif %}
     {% endfor %}
 
 
-} // namespace {{model.namespace}}
+} // namespace {{ model.namespace }}
 
-#endif
+#endif // {{ nsmarker }}

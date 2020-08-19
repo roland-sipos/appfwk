@@ -8,7 +8,9 @@
  */
 
 #include "FakeDataConsumerDAQModule.hpp"
-#include "appfwk/CcmInterface.hpp"
+#include "TestNljs.hpp"
+#include "appfwk/CmdStructs.hpp"
+
 #include "TRACE/trace.h"
 #include <ers/ers.h>
 
@@ -31,20 +33,24 @@ FakeDataConsumerDAQModule::FakeDataConsumerDAQModule(const std::string& name)
   , queueTimeout_(100)
   , inputQueue_(nullptr)
 {
-  register_command(command::Conf::name, &FakeDataConsumerDAQModule::do_configure);
-  register_command(command::Start::name, &FakeDataConsumerDAQModule::do_start);
-  register_command(command::Stop::name, &FakeDataConsumerDAQModule::do_stop);
+  register_command(cmd::IdNames::conf, &FakeDataConsumerDAQModule::do_configure);
+  register_command(cmd::IdNames::scrap, &FakeDataConsumerDAQModule::do_unconfigure);
+  register_command(cmd::IdNames::start, &FakeDataConsumerDAQModule::do_start);
+  register_command(cmd::IdNames::stop, &FakeDataConsumerDAQModule::do_stop);
 }
 
 void
-FakeDataConsumerDAQModule::do_configure(data_t cfg)
+FakeDataConsumerDAQModule::do_configure(data_t obj)
 {
-  inputQueue_.reset(new DAQSource<std::vector<int>>(cfg["input"].get<std::string>()));
-
-  nIntsPerVector_ = cfg.value<int>("nIntsPerVector", 10);
-  starting_int_ = cfg.value<int>("starting_int", -4);
-  ending_int_ = cfg.value<int>("ending_int", 14);
-  queueTimeout_ = std::chrono::milliseconds(cfg.value<int>("queue_timeout_ms", 100));
+  cfg_ = obj.get<FakeDataConsumerCfg>();
+  inputQueue_.reset(new DAQSource<std::vector<int>>(cfg_.input));
+  queueTimeout_ = std::chrono::milliseconds(cfg_.queue_timeout_ms);
+}
+void
+FakeDataConsumerDAQModule::do_unconfigure(data_t)
+{
+  inputQueue_.reset();
+  queueTimeout_ = std::chrono::milliseconds(100);
 }
 
 void
@@ -82,7 +88,7 @@ operator<<(std::ostream& t, std::vector<int> ints)
 void
 FakeDataConsumerDAQModule::do_work(std::atomic<bool>& running_flag)
 {
-  int current_int = starting_int_;
+  int current_int = cfg_.starting_int;
   int counter = 0;
   int fail_count = 0;
   std::vector<int> vec;
@@ -121,8 +127,8 @@ FakeDataConsumerDAQModule::do_work(std::atomic<bool>& running_flag)
           current_int = point;
         }
         ++current_int;
-        if (current_int > ending_int_)
-          current_int = starting_int_;
+        if (current_int > cfg_.ending_int)
+          current_int = cfg_.starting_int;
         ++ii;
       }
       TLOG(TLVL_TRACE) << get_name() << ": Done with processing loop, failed=" << failed;

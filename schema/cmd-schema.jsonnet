@@ -4,6 +4,7 @@
 
 local moo = import "moo.jsonnet";
 local re = moo.schema.re;
+local ccm = import "ccm.jsonnet";
 
 function(schema) {
 
@@ -35,6 +36,7 @@ function(schema) {
 
     // An eight byte int
     long: schema.number("Long", dtype="i8"),
+    ulong: schema.number("Long", dtype="u8"),
 
     // CCM commands and command dispatch protocol.
     //
@@ -52,40 +54,52 @@ function(schema) {
     // this to work obviously relies on colusion in how the schema are
     // interprted.  We describe the schema for these individual parts:
 
-    // Every CCM command has a name from a fixed set. 
-    cmdname: schema.enum(
-        "CommandName",
-        ["exec","init","conf","start","stop","scrap","fini","term","undef"],
+    // Every CCM command has an ID number/enum. 
+    id: schema.enum(
+        "Id",
+        ccm.commands.names,
         default="undef",
-        doc="The set of command names which may be expected from CCM"),
+        doc="The set of expected command identifiers"),
     
     // The command recipient is either an empty string (applies to
     // "all" of the process in parts or whole) or names substructure
     // of the process.
-    cmdrecipient: schema.string("CommandRecipient",
-                                pattern='^$|%s' % self.ident),
+    recipient: schema.string("Recipient",
+                             pattern='^$|%s' % self.ident),
 
     // Command data is what a recipient gets.  In the general context,
     // its precise schema is unknown and so it is represented as an
     // "any".  Other schema may be applied in a more specific context
     // to resolve any ambiguity.
-    cmddata: schema.any("CommandData"),
+    data: schema.any("Data"),
 
     // The command payload is the object mapping recipients to their
     // data.
-    cmdpayload: schema.record("CommandPayload", fields = [
-        schema.field("recipient", $.cmdrecipient, "",
+    payload: schema.record("Payload", fields = [
+        schema.field("recipient", $.recipient, "",
                       doc="Recipient of command data"),
-        schema.field("data", $.cmddata, {},
+        schema.field("data", $.data, {},
                      doc="Command data")
     ], doc="Associate data to a recipient"),
-    cmdpayloads: schema.sequence("CommandPayloads", $.cmdpayload),
+    payloads: schema.sequence("Payloads", $.payload),
 
-    command: schema.record("Command", fields = [
-        schema.field("name", $.cmdname, "undef", doc="The command name"),
-        schema.field("payload", $.cmdpayloads, [], doc="The command payloads")
-    ], doc="A CCM command to a process"),
+    // Wrap everything up into a single object.
+    object: schema.record("Object", fields = [
+        schema.field("id", $.id, "undef", doc="The command ID number"),
+        schema.field("payload", $.payloads, [], doc="The command payloads")
+    ], doc="A command to a process"),
+
+
+    // The appfwk inserts an FSM between command source and command
+    // execution in order to protect the process from unknown commands
+    // or unexpected ordering.  Each FSM event must be of a specific
+    // (C++) type so we make a set of little structs.
+
+    fsmevts: [schema.record(N, fields = [
+        schema.field("id", $.id, "Id::"+std.asciiLower(N), doc="Command ID number"),
+        schema.field("payload", $.payload, doc="Command payload data"),
+    ], doc="FSM event type for command "+N) for N in ccm.commands.Names],
 
     types: [$.ident, $.letter, $.filepath, $.bool, $.short, $.int, $.long, $.float, $.double,
-            $.cmdname, $.cmdrecipient, $.cmddata, $.cmdpayload, $.cmdpayloads, $.command],
+            $.id, $.recipient, $.data, $.payload, $.payloads, $.object] + self.fsmevts,
 }

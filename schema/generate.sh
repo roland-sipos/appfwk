@@ -16,6 +16,7 @@
 schemadir="$(dirname $(realpath $BASH_SOURCE))"
 topdir="$(dirname $schemadir)"
 srcdir="$topdir/src"
+incdir="$topdir/include/appfwk"
 tstdir="$topdir/test"
 
 pushd $srcdir > /dev/null
@@ -30,26 +31,20 @@ render () {
 }
 
 do_one () {
+    local pre="$1"; shift
     local one="$1"; shift
     local dest="$1"; shift
     if [ ! -f $one ] ; then
         return
     fi
-    local name="$(basename $one -codegen.jsonnet)"
-    for tname in nljs structs
+    for tname in Nljs Structs
     do
-        local hppj2="${schemadir}/${tname}.hpp.j2"
-        local out="${dest}/${name}-${tname}.hpp"
+        lname=$(echo $tname | awk '{print tolower($0)}')
+        local hppj2="${schemadir}/${lname}.hpp.j2"
+        local out="${dest}/${pre}${tname}.hpp"
         render "$one" "$hppj2" "$out"
     done
 }
 
-for one in $schemadir/*-codegen.jsonnet
-do
-    do_one "$one" "$srcdir"
-done
-
-for one in $tstdir/*-codegen.jsonnet
-do
-    do_one "$one" "$tstdir"
-done
+do_one Cmd "${schemadir}/cmd-codegen.jsonnet" "$incdir"
+do_one Test "${tstdir}/test-codegen.jsonnet" "$tstdir"

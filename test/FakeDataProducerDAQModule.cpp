@@ -7,9 +7,9 @@
  * received with this code.
  */
 
+#include "TestNljs.hpp"
 #include "FakeDataProducerDAQModule.hpp"
-#include "appfwk/CcmInterface.hpp"
-
+#include "appfwk/CmdStructs.hpp"
 #include <chrono>
 #include <string>
 #include <thread>
@@ -31,21 +31,24 @@ FakeDataProducerDAQModule::FakeDataProducerDAQModule(const std::string& name)
   , outputQueue_(nullptr)
   , queueTimeout_(100)
 {
-  register_command(command::Conf::name, &FakeDataProducerDAQModule::do_configure);
-  register_command(command::Start::name, &FakeDataProducerDAQModule::do_start);
-  register_command(command::Stop::name, &FakeDataProducerDAQModule::do_stop);
+  register_command(cmd::IdNames::conf, &FakeDataProducerDAQModule::do_configure);
+  register_command(cmd::IdNames::scrap, &FakeDataProducerDAQModule::do_unconfigure);
+  register_command(cmd::IdNames::start, &FakeDataProducerDAQModule::do_start);
+  register_command(cmd::IdNames::stop, &FakeDataProducerDAQModule::do_stop);
 }
 
 void
-FakeDataProducerDAQModule::do_configure(data_t cfg)
+FakeDataProducerDAQModule::do_configure(data_t obj)
 {
-  outputQueue_.reset(new DAQSink<std::vector<int>>(cfg["output"].get<std::string>()));
-
-  nIntsPerVector_ = cfg.value<int>("nIntsPerVector", 10);
-  starting_int_ = cfg.value<int>("starting_int", -4);
-  ending_int_ = cfg.value<int>("ending_int", 14);
-  wait_between_sends_ms_ = cfg.value<int>("wait_between_sends_ms", 1000);
-  queueTimeout_ = std::chrono::milliseconds(cfg.value<int>("queue_timeout_ms", 100));
+  cfg_ = obj.get<FakeDataProducerCfg>();
+  outputQueue_.reset(new DAQSink<std::vector<int>>(cfg_.output));
+  queueTimeout_ = std::chrono::milliseconds(cfg_.queue_timeout_ms);
+}
+void
+FakeDataProducerDAQModule::do_unconfigure(data_t)
+{
+  outputQueue_.reset();
+  queueTimeout_ = std::chrono::milliseconds(100);
 }
 
 void
@@ -83,20 +86,20 @@ operator<<(std::ostream& t, std::vector<int> ints)
 void
 FakeDataProducerDAQModule::do_work(std::atomic<bool>& running_flag)
 {
-  int current_int = starting_int_;
+  int current_int = cfg_.starting_int;
   size_t counter = 0;
   std::ostringstream oss;
 
   while (running_flag.load()) {
     TLOG(TLVL_TRACE) << get_name() << ": Creating output vector";
-    std::vector<int> output(nIntsPerVector_);
+    std::vector<int> output(cfg_.nIntsPerVector);
 
     TLOG(TLVL_TRACE) << get_name() << ": Start of fill loop";
-    for (size_t ii = 0; ii < nIntsPerVector_; ++ii) {
+    for (size_t ii = 0; ii < cfg_.nIntsPerVector; ++ii) {
       output[ii] = current_int;
       ++current_int;
-      if (current_int > ending_int_)
-        current_int = starting_int_;
+      if (current_int > cfg_.ending_int)
+        current_int = cfg_.starting_int;
     }
     oss << "Produced vector " << counter << " with contents " << output << " and size " << output.size();
     ers::debug(ProducerProgressUpdate(ERS_HERE, get_name(), oss.str()));
@@ -110,7 +113,7 @@ FakeDataProducerDAQModule::do_work(std::atomic<bool>& running_flag)
     }
 
     TLOG(TLVL_TRACE) << get_name() << ": Start of sleep between sends";
-    std::this_thread::sleep_for(std::chrono::milliseconds(wait_between_sends_ms_));
+    std::this_thread::sleep_for(std::chrono::milliseconds(cfg_.wait_between_sends_ms));
     TLOG(TLVL_TRACE) << get_name() << ": End of do_work loop";
     counter++;
   }

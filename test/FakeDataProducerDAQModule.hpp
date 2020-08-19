@@ -13,6 +13,7 @@
 #ifndef APPFWK_TEST_FAKEDATAPRODUCERDAQMODULE_HPP_
 #define APPFWK_TEST_FAKEDATAPRODUCERDAQMODULE_HPP_
 
+#include "TestStructs.hpp"
 #include "appfwk/DAQModule.hpp"
 #include "appfwk/DAQSink.hpp"
 #include "appfwk/ThreadHelper.hpp"
@@ -47,8 +48,9 @@ public:
     delete; ///< FakeDataProducerDAQModule is not move-assignable
 
 private:
-  // Commands
+  // Command handlers
   void do_configure(data_t data);
+  void do_unconfigure(data_t data);
   void do_start(data_t data);
   void do_stop(data_t data);
 
@@ -56,14 +58,12 @@ private:
   ThreadHelper thread_;
   void do_work(std::atomic<bool>& running_flag);
 
-  // Configuration
+  // Generated configuration object
+  FakeDataProducerCfg cfg_;
+
+  // Derived configurable quantities
   std::unique_ptr<DAQSink<std::vector<int>>> outputQueue_;
   std::chrono::milliseconds queueTimeout_;
-  size_t nIntsPerVector_ = 999;
-  int starting_int_ = -999;
-  int ending_int_ = -999;
-
-  size_t wait_between_sends_ms_ = 999;
 };
 } // namespace appfwk
 

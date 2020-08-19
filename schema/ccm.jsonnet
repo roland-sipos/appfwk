@@ -15,13 +15,23 @@ local multischema(ss) = function(schemalist) {
     // Return a concrete domain schema (avro) which may then be
     // applied to templates in order to generate code.  The name used
     // in various places including to form file names.
-    codegen(name, namespace, schemalist) :: 
-    cg(name, multischema(schemalist), namespace) + {
+    codegen(Name, namespace, schemalist) :: 
+    cg(Name, multischema(schemalist), namespace) + {
         // NB: adjust this if the generated headers are considered
         // public.
-        structinc: '#include "%s-structs.hpp"'%name,
+        structincs: '#include "%sStructs.hpp"'%Name,
         anyincludes: "#include <nlohmann/json.hpp>",
         anytype: "nlohmann::json",
     },
+
+    // This collects all meta info about CCM commands intended for use
+    // in other parts of the schema.
+    commands: {
+        Names: ["Exec","Init","Conf","Start","Stop","Scrap","Fini","Term","Undef"],
+        names: [std.asciiLower(n) for n in self.Names],
+    },
+
+    // fixme: describe an fsm, add template to realize it.  Assume boost::msm.
+
 }
 

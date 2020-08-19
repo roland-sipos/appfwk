@@ -1,4 +1,4 @@
-#include "appfwk/CcmInterface.hpp"
+#include "appfwk/CmdStructs.hpp"
 
 namespace dunedaq::appfwk {
 
@@ -12,10 +12,10 @@ FanOutDAQModule<ValueType>::FanOutDAQModule(std::string name)
   , outputQueues_()
   , wait_interval_us_(std::numeric_limits<size_t>::max())
 {
-  register_command(command::Conf::name, &FanOutDAQModule<ValueType>::do_configure);
-  register_command(command::Scrap::name, &FanOutDAQModule<ValueType>::do_unconfigure);
-  register_command(command::Start::name, &FanOutDAQModule<ValueType>::do_start);
-  register_command(command::Stop::name, &FanOutDAQModule<ValueType>::do_stop);
+  register_command(cmd::IdNames::conf, &FanOutDAQModule<ValueType>::do_configure);
+  register_command(cmd::IdNames::scrap, &FanOutDAQModule<ValueType>::do_unconfigure);
+  register_command(cmd::IdNames::start, &FanOutDAQModule<ValueType>::do_start);
+  register_command(cmd::IdNames::stop, &FanOutDAQModule<ValueType>::do_stop);
 }
 
 template<typename ValueType>

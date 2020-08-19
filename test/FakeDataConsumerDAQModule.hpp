@@ -12,6 +12,8 @@
 #ifndef APPFWK_TEST_FAKEDATACONSUMERDAQMODULE_HPP_
 #define APPFWK_TEST_FAKEDATACONSUMERDAQMODULE_HPP_
 
+#include "TestStructs.hpp"
+
 #include "appfwk/DAQModule.hpp"
 #include "appfwk/DAQSource.hpp"
 #include "appfwk/ThreadHelper.hpp"
@@ -48,8 +50,9 @@ public:
     delete; ///< FakeDataConsumerDAQModule is not move-assignable
 
 private:
-  // Commands
+  // Command handlers
   void do_configure(data_t data);
+  void do_unconfigure(data_t data);
   void do_start(data_t data);
   void do_stop(data_t data);
 
@@ -57,10 +60,10 @@ private:
   void do_work(std::atomic<bool>& running_flag);
   ThreadHelper thread_;
 
-  // Configuration (for validation)
-  size_t nIntsPerVector_ = 999;
-  int starting_int_ = -999;
-  int ending_int_ = -999;
+  // Generated configuration object
+  FakeDataConsumerCfg cfg_;
+
+  // Derived configurable quantities
   std::chrono::milliseconds queueTimeout_;
   std::unique_ptr<DAQSource<std::vector<int>>> inputQueue_;
 };
