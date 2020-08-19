@@ -7,6 +7,7 @@
  */
 
 #include "appfwk/DAQProcess.hpp"
+#include "appfwk/CmdNljs.hpp"
 
 #include "appfwk/CommandFacility.hpp"
 #include "appfwk/Logger.hpp"
@@ -43,8 +44,6 @@ DAQProcess::register_modules(const GraphConstructor& ml)
 void
 DAQProcess::execute_command(std::string const& cmd, DAQModule::data_t data) const
 {
-  // fixme: here we need to implement "command dispatch protocol"
-
   std::unordered_set<std::string> daq_module_list;
   for (auto const& dm : daqModuleMap_) {
     // TODO: Alessandro Thea (Alessandro.Thea@cern.ch), Jun-19-2020. Works, but it's too simple. Needs better handling. Timescale TBD. 
