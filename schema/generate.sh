@@ -42,7 +42,9 @@ do_one () {
         lname=$(echo $tname | awk '{print tolower($0)}')
         local hppj2="${schemadir}/${lname}.hpp.j2"
         local out="${dest}/${pre}${tname}.hpp"
+        rm -f "$out"
         render "$one" "$hppj2" "$out"
+        chmod -w "$out"
     done
 }
 

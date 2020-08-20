@@ -78,15 +78,15 @@ function(schema) {
     payload: schema.record("Payload", fields = [
         schema.field("recipient", $.recipient, "",
                       doc="Recipient of command data"),
-        schema.field("data", $.data, {},
+        schema.field("data", $.data,
                      doc="Command data")
     ], doc="Associate data to a recipient"),
     payloads: schema.sequence("Payloads", $.payload),
 
     // Wrap everything up into a single object.
     object: schema.record("Object", fields = [
-        schema.field("id", $.id, "undef", doc="The command ID number"),
-        schema.field("payload", $.payloads, [], doc="The command payloads")
+        schema.field("id", $.id, "Id::undef", doc="The command ID number"),
+        schema.field("payloads", $.payloads, doc="The command payloads")
     ], doc="A command to a process"),
 
 

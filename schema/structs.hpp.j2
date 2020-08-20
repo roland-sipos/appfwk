@@ -57,6 +57,7 @@ namespace {{ model.namespace }} {
     };
     /// Convert a {{t.name}} to a string.
     {% set lname = t.name.lower() %}
+    inline
     std::string str(const {{t.name}}& {{lname}}) {
         const std::map<{{t.name}}, std::string> {{lname}}2s = {
             {% for sname in t.symbols %}
@@ -71,6 +72,7 @@ namespace {{ model.namespace }} {
         return it->second;
     }
     /// Convert a string to a {{t.name}}
+    inline
     {{t.name}} to{{t.name}}(const std::string& {{lname}}) {
         const std::map<std::string, {{t.name}}> s2{{lname}} = {
             {% for sname in t.symbols %}
@@ -98,7 +100,7 @@ namespace {{ model.namespace }} {
     /// @brief {{t.doc}}
     struct {{t.name}}{%- for b in t.fields if b.name.startswith("_base_") -%}{{" :" if loop.first}} public {{b.type}} {{ "," if not loop.last }}{% endfor %} {
         {% for f in t.fields if not f.name.startswith("_base_") %}
-        {{ field_type(f.type) }} {{f.name}};
+        {{ field_type(f.type) }} {{f.name}}{ {{ f.default }} };
         {% endfor %}
     };
 

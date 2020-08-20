@@ -35,8 +35,8 @@
 #include <vector>
 
 #ifndef EXTERN_C_FUNC_DECLARE_START
-#define EXTERN_C_FUNC_DECLARE_START                                                                                    \
-  extern "C"                                                                                                           \
+#define EXTERN_C_FUNC_DECLARE_START \
+  extern "C"                        \
   {
 #endif
 

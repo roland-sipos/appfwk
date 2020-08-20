@@ -19,7 +19,7 @@ namespace dunedaq::appfwk::cmd {
         start,
         stop,
         scrap,
-        fini,
+        fina,
         term,
         undef,
     };
@@ -30,11 +30,12 @@ namespace dunedaq::appfwk::cmd {
         static constexpr char const* start = "start";
         static constexpr char const* stop = "stop";
         static constexpr char const* scrap = "scrap";
-        static constexpr char const* fini = "fini";
+        static constexpr char const* fina = "fina";
         static constexpr char const* term = "term";
         static constexpr char const* undef = "undef";
     };
     /// Convert a Id to a string.
+    inline
     std::string str(const Id& id) {
         const std::map<Id, std::string> id2s = {
             { Id::exec, "exec" },
@@ -43,7 +44,7 @@ namespace dunedaq::appfwk::cmd {
             { Id::start, "start" },
             { Id::stop, "stop" },
             { Id::scrap, "scrap" },
-            { Id::fini, "fini" },
+            { Id::fina, "fina" },
             { Id::term, "term" },
             { Id::undef, "undef" },
         };
@@ -55,6 +56,7 @@ namespace dunedaq::appfwk::cmd {
         return it->second;
     }
     /// Convert a string to a Id
+    inline
     Id toId(const std::string& id) {
         const std::map<std::string, Id> s2id = {
             { "exec", Id::exec },
@@ -63,7 +65,7 @@ namespace dunedaq::appfwk::cmd {
             { "start", Id::start },
             { "stop", Id::stop },
             { "scrap", Id::scrap },
-            { "fini", Id::fini },
+            { "fina", Id::fina },
             { "term", Id::term },
             { "undef", Id::undef },
         };
@@ -79,78 +81,78 @@ namespace dunedaq::appfwk::cmd {
 
     /// @brief Associate data to a recipient
     struct Payload {
-        std::string recipient;
-        Data data;
+        std::string recipient{  };
+        Data data{  };
     };
 
 
     /// @brief A command to a process
     struct Object {
-        Id id;
-        std::vector<Payload> payload;
+        Id id{ Id::undef };
+        std::vector<Payload> payloads{  };
     };
 
 
     /// @brief FSM event type for command Exec
     struct Exec {
-        Id id;
-        Payload payload;
+        Id id{ Id::exec };
+        Payload payload{  };
     };
 
 
     /// @brief FSM event type for command Init
     struct Init {
-        Id id;
-        Payload payload;
+        Id id{ Id::init };
+        Payload payload{  };
     };
 
 
     /// @brief FSM event type for command Conf
     struct Conf {
-        Id id;
-        Payload payload;
+        Id id{ Id::conf };
+        Payload payload{  };
     };
 
 
     /// @brief FSM event type for command Start
     struct Start {
-        Id id;
-        Payload payload;
+        Id id{ Id::start };
+        Payload payload{  };
     };
 
 
     /// @brief FSM event type for command Stop
     struct Stop {
-        Id id;
-        Payload payload;
+        Id id{ Id::stop };
+        Payload payload{  };
     };
 
 
     /// @brief FSM event type for command Scrap
     struct Scrap {
-        Id id;
-        Payload payload;
+        Id id{ Id::scrap };
+        Payload payload{  };
     };
 
 
-    /// @brief FSM event type for command Fini
-    struct Fini {
-        Id id;
-        Payload payload;
+    /// @brief FSM event type for command Fina
+    struct Fina {
+        Id id{ Id::fina };
+        Payload payload{  };
     };
 
 
     /// @brief FSM event type for command Term
     struct Term {
-        Id id;
-        Payload payload;
+        Id id{ Id::term };
+        Payload payload{  };
     };
 
 
     /// @brief FSM event type for command Undef
     struct Undef {
-        Id id;
-        Payload payload;
+        Id id{ Id::undef };
+        Payload payload{  };
     };
 
 

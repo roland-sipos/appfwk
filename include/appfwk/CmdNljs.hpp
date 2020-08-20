@@ -19,7 +19,7 @@ namespace dunedaq::appfwk::cmd {
             { dunedaq::appfwk::cmd::Id::start, "start" },
             { dunedaq::appfwk::cmd::Id::stop, "stop" },
             { dunedaq::appfwk::cmd::Id::scrap, "scrap" },
-            { dunedaq::appfwk::cmd::Id::fini, "fini" },
+            { dunedaq::appfwk::cmd::Id::fina, "fina" },
             { dunedaq::appfwk::cmd::Id::term, "term" },
             { dunedaq::appfwk::cmd::Id::undef, "undef" },
         })
@@ -42,14 +42,14 @@ namespace dunedaq::appfwk::cmd {
     // A command to a process
     inline void to_json(json& j, const Object& obj) {
         j["id"] = obj.id;
-        j["payload"] = obj.payload;
+        j["payloads"] = obj.payloads;
     }
     inline void from_json(const json& j, Object& obj) {
         if (j.contains("id")) {
             j.at("id").get_to(obj.id);
         }
-        if (j.contains("payload")) {
-            j.at("payload").get_to(obj.payload);
+        if (j.contains("payloads")) {
+            j.at("payloads").get_to(obj.payloads);
         }
     }
     // Converters for Exec
@@ -136,13 +136,13 @@ namespace dunedaq::appfwk::cmd {
             j.at("payload").get_to(obj.payload);
         }
     }
-    // Converters for Fini
-    // FSM event type for command Fini
-    inline void to_json(json& j, const Fini& obj) {
+    // Converters for Fina
+    // FSM event type for command Fina
+    inline void to_json(json& j, const Fina& obj) {
         j["id"] = obj.id;
         j["payload"] = obj.payload;
     }
-    inline void from_json(const json& j, Fini& obj) {
+    inline void from_json(const json& j, Fina& obj) {
         if (j.contains("id")) {
             j.at("id").get_to(obj.id);
         }

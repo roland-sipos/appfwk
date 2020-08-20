@@ -11,21 +11,21 @@ namespace dunedaq::appfwk {
 
     /// @brief Configuration for FakeDataProducerDAQMOdule
     struct FakeDataProducerCfg {
-        std::string output;
-        int32_t starting_int;
-        int32_t ending_int;
-        int32_t queue_timeout_ms;
-        int32_t wait_between_sends_ms;
-        uint64_t nIntsPerVector;
+        std::string output{  };
+        int32_t starting_int{ -4 };
+        int32_t ending_int{ 14 };
+        int32_t queue_timeout_ms{ 1000 };
+        int32_t wait_between_sends_ms{ 1000 };
+        uint64_t nIntsPerVector{ 10 };
     };
 
 
     /// @brief Configuration for FakeDataConsumerDAQMOdule
     struct FakeDataConsumerCfg {
-        std::string input;
-        int32_t starting_int;
-        int32_t ending_int;
-        int32_t queue_timeout_ms;
+        std::string input{  };
+        int32_t starting_int{ -4 };
+        int32_t ending_int{ 14 };
+        int32_t queue_timeout_ms{ 1000 };
     };
 
 
