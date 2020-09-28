@@ -169,7 +169,7 @@ struct fileCommandFacility : public CommandFacility {
         ios.reset();
     }
 
-    fileCommandFacility(std::string uri, DAQModuleManager& manager) : CommandFacility(uri, manager) {
+    fileCommandFacility(std::string uri) : CommandFacility(uri) {
 
         auto dot = uri.find_last_of(".");
         auto sep = uri.find("://");
@@ -236,7 +236,7 @@ struct fileCommandFacility : public CommandFacility {
 };
 
 extern "C" {
-    std::shared_ptr<dunedaq::appfwk::CommandFacility> make(std::string uri, DAQModuleManager& manager) { 
-        return std::shared_ptr<dunedaq::appfwk::CommandFacility>(new fileCommandFacility(uri, manager));
+    std::shared_ptr<dunedaq::appfwk::CommandFacility> make(std::string uri) { 
+        return std::shared_ptr<dunedaq::appfwk::CommandFacility>(new fileCommandFacility(uri));
     }
 }

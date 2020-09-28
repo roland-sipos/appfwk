@@ -43,12 +43,6 @@ MakeDataTypeLibraries(CPPTYPE dunedaq::appfwk::NonCopyableType PREFIX NonCopyabl
 add_library(appfwk_fileCommandFacility_duneCommandFacility src/FileCommandFacility.cpp)
 target_link_libraries(appfwk_fileCommandFacility_duneCommandFacility appfwk)
 
-string(REPLACE ":" ";" LIBRARY_DIRS $ENV{LD_LIBRARY_PATH})
-find_library(ccmControl_LIBRARY libccmControl.so PATHS ${LIBRARY_DIRS})
-add_library(appfwk_restCommandFacility_duneCommandFacility src/RestCommandFacility.cpp)
-target_include_directories(appfwk_restCommandFacility_duneCommandFacility PUBLIC $ENV{CCM_INC_DIR} $ENV{PISTACHE_INC_DIR})
-target_link_libraries(appfwk_restCommandFacility_duneCommandFacility appfwk ${ccmControl_LIBRARY})
-
 ##############################################################################
 daq_point_build_to( apps )
 
