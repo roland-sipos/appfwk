@@ -48,7 +48,7 @@ main(int argc, char* argv[])
   }
 
   DAQModuleManager manager;
-  auto cmdfac = makeCommandFacility(args.commandFacilityPluginName);
+  auto cmdfac = makeCommandFacility(args.commandFacilityPluginName, manager);
   cmdfac->run(manager);
   return 0;
 }

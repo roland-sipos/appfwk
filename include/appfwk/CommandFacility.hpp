@@ -46,20 +46,21 @@ class DAQModuleManager; // forward declaration
 class CommandFacility
 {
 public:
-  CommandFacility(std::string /*uri*/) {}
+  CommandFacility(std::string /*uri*/, DAQModuleManager& manager) : manager_{manager} {}
 
   virtual void run(DAQModuleManager& /*process*/) const = 0;
 
+protected:
+  DAQModuleManager& manager_;
+
 private:
-
-
 };
 
 
 
 
 std::shared_ptr<CommandFacility>
-makeCommandFacility(std::string const& uri)
+makeCommandFacility(std::string const& uri, DAQModuleManager& manager)
 {
     auto sep = uri.find("://");
     std::string scheme;
@@ -71,7 +72,7 @@ makeCommandFacility(std::string const& uri)
     }
     std::string plugin_name = scheme + "CommandFacility";
     static cet::BasicPluginFactory bpf("duneCommandFacility", "make");
-    return bpf.makePlugin<std::shared_ptr<CommandFacility>>(plugin_name, uri);
+    return bpf.makePlugin<std::shared_ptr<CommandFacility>>(plugin_name, uri, manager);
 }
 
 }
