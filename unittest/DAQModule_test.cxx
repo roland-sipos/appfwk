@@ -35,8 +35,15 @@ public:
     register_command("stuff", &BadDAQModule::do_other_stuff);
   }
 
+<<<<<<< HEAD
   void do_stuff(data_t /*args*/) {}
   void do_other_stuff(data_t /*args*/) {}
+=======
+  void init(const nlohmann::json& ) final {}
+
+  void do_stuff(const data_t& /*data*/) {}
+  void do_other_stuff(const data_t& /*data*/) {}
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 };
 
 class GoodDAQModule : public DAQModule
@@ -48,7 +55,13 @@ public:
     register_command("stuff", &GoodDAQModule::do_stuff);
   }
 
+<<<<<<< HEAD
   void do_stuff(data_t /*args*/) {}
+=======
+  void init(const nlohmann::json& ) final {}
+
+  void do_stuff(const data_t& /*data*/) {}
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 };
 } // namespace daqmoduletest
 

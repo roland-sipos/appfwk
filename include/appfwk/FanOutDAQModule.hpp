@@ -85,18 +85,32 @@ public:
    * @param cmd Command from DAQProcess
    * @param args Arguments for the command from DAQProcess
    */
+<<<<<<< HEAD
+=======
+  // void execute_command(const std::string& cmd, const data_t& data = {}) override;
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 
   FanOutDAQModule(const FanOutDAQModule&) = delete;            ///< FanOutDAQModule is not copy-constructible
   FanOutDAQModule& operator=(const FanOutDAQModule&) = delete; ///< FanOutDAQModule is not copy-assignable
   FanOutDAQModule(FanOutDAQModule&&) = delete;                 ///< FanOutDAQModule is not move-constructible
   FanOutDAQModule& operator=(FanOutDAQModule&&) = delete;      ///< FanOutDAQModule is not move-assignable
 
+<<<<<<< HEAD
 private:
   // Commands
   void do_configure(data_t cmddat);
   void do_unconfigure(data_t cmddat);
   void do_start(data_t cmddat);
   void do_stop(data_t cmddat);
+=======
+  void init(const nlohmann::json& ) override;
+
+private:
+  // Commands
+  void do_configure(const data_t& data);
+  void do_start(const data_t& data);
+  void do_stop(const data_t& data);
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 
   // Type traits handling. Yes, the "U" template parameter is actually
   // necessary, even though it's just an alias to this user module's

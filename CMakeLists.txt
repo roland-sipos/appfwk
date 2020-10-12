@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(appfwk VERSION 1.0.0)
+project(appfwk VERSION 1.1.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../daq-buildtools/cmake ${CMAKE_MODULE_PATH})
 include(DAQ)
@@ -18,12 +18,17 @@ set(APPFWK_DEPENDENCIES ${CETLIB} ${CETLIB_EXCEPT} ers::ers Folly::folly nlohman
 ##############################################################################
 daq_point_build_to( src )
 
+<<<<<<< HEAD
 add_library(appfwk SHARED src/QueueRegistry.cpp src/DAQProcess.cpp src/DAQModule.cpp src/Application.cpp)
+=======
+add_library(appfwk SHARED src/QueueRegistry.cpp src/DAQModule.cpp
+  src/DAQModuleManager.cpp src/DAQModuleHelper.cpp)
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 target_link_libraries(appfwk ${APPFWK_DEPENDENCIES})
 target_include_directories(appfwk PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> )
 
-add_library(appfwk_QueryResponseCommandFacility_duneCommandFacility src/QueryResponseCommandFacility.cpp)
-target_link_libraries(appfwk_QueryResponseCommandFacility_duneCommandFacility appfwk)
+# add_library(appfwk_QueryResponseCommandFacility_duneCommandFacility src/QueryResponseCommandFacility.cpp)
+# target_link_libraries(appfwk_QueryResponseCommandFacility_duneCommandFacility appfwk)
 
 macro(MakeDataTypeLibraries)
    set(oneValueArgs CPPTYPE PREFIX)
@@ -38,6 +43,9 @@ endmacro()
 MakeDataTypeLibraries(CPPTYPE std::vector<int> PREFIX VectorInt)
 MakeDataTypeLibraries(CPPTYPE std::string PREFIX String)
 MakeDataTypeLibraries(CPPTYPE dunedaq::appfwk::NonCopyableType PREFIX NonCopyableType)
+
+add_library(appfwk_fileCommandFacility_duneCommandFacility src/FileCommandFacility.cpp)
+target_link_libraries(appfwk_fileCommandFacility_duneCommandFacility appfwk)
 
 
 ##############################################################################
@@ -61,15 +69,17 @@ target_link_libraries(appfwk_DummyModule_duneDAQModule appfwk)
 
 add_library(appfwk_FakeDataConsumerDAQModule_duneDAQModule test/FakeDataConsumerDAQModule.cpp)
 target_link_libraries(appfwk_FakeDataConsumerDAQModule_duneDAQModule appfwk)
+target_include_directories(appfwk_FakeDataConsumerDAQModule_duneDAQModule PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/test>) 
 
 add_library(appfwk_FakeDataProducerDAQModule_duneDAQModule test/FakeDataProducerDAQModule.cpp)
 target_link_libraries(appfwk_FakeDataProducerDAQModule_duneDAQModule appfwk)
+target_include_directories(appfwk_FakeDataProducerDAQModule_duneDAQModule PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/test>) 
 
 add_executable(queue_IO_check test/queue_IO_check.cxx)
 target_link_libraries(queue_IO_check ${Boost_PROGRAM_OPTIONS_LIBRARY} appfwk)
 
-add_executable(dummy_test_app test/dummy_test_app.cxx)
-target_link_libraries(dummy_test_app appfwk appfwk_DummyModule_duneDAQModule ${Boost_PROGRAM_OPTIONS_LIBRARY} appfwk)
+# add_executable(dummy_test_app test/dummy_test_app.cxx)
+# target_link_libraries(dummy_test_app appfwk appfwk_DummyModule_duneDAQModule ${Boost_PROGRAM_OPTIONS_LIBRARY} appfwk)
 
 
 file(COPY test/producer_consumer_dynamic_test.json DESTINATION test)
@@ -83,10 +93,15 @@ daq_add_unit_test(FanOutDAQModule_test    appfwk )
 daq_add_unit_test(FollyQueue_test         ers::ers Folly::folly)
 daq_add_unit_test(StdDeQueue_test         ers::ers)
 daq_add_unit_test(ThreadHelper_test       ers::ers)
+daq_add_unit_test(NamedObject_test		  )
 
 ##############################################################################
 
 daq_install(TARGETS daq_application 
-                    appfwk 
-                    VectorIntFanOutDAQModule_duneDAQModule StringFanOutDAQModule_duneDAQModule NonCopyableTypeFanOutDAQModule_duneDAQModule
+                    appfwk
+		    # appfwk_QueryResponseCommandFacility_duneCommandFacility 
+                    appfwk_fileCommandFacility_duneCommandFacility
+                    VectorIntFanOutDAQModule_duneDAQModule
+                    StringFanOutDAQModule_duneDAQModule
+                    NonCopyableTypeFanOutDAQModule_duneDAQModule
 	   )

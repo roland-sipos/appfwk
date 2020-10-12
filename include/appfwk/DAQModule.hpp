@@ -55,6 +55,9 @@
 namespace dunedaq {
 
 namespace appfwk {
+
+    
+
 /**
  * @brief The DAQModule class implementations are a set of code which performs
  * a specific task.
@@ -69,7 +72,10 @@ namespace appfwk {
 class DAQModule : public NamedObject
 {
 public:
-  /**
+
+  using data_t = nlohmann::json;
+
+    /**
    * @brief DAQModule Constructor
    * @param name Name of the DAQModule
    */
@@ -77,7 +83,16 @@ public:
     : NamedObject(name)
   {}
 
+<<<<<<< HEAD
   using data_t = nlohmann::json;
+=======
+  /**
+   * @brief      Initializes the module
+   *
+   * Initialisation of the module. Abstract method to be overridden by derived classes.
+   */
+  virtual void init( const data_t& ) = 0;
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 
   /**
    * @brief Execute a named command on this DAQModule
@@ -89,7 +104,11 @@ public:
    * commands (eg, originating from CCM) to the DAQModule.
    * Non-accepted commands or failure should throw an ERS exception.
    */
+<<<<<<< HEAD
   void execute_command(const std::string& name, data_t data);
+=======
+  void execute_command(const std::string& name, const data_t& data = {});
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 
   std::vector<std::string> get_commands() const;
 
@@ -98,6 +117,7 @@ public:
 protected:
 
   /**
+<<<<<<< HEAD
    * @brief Registers a module method to handle a command named `cmd`.
    */
   template<typename Child>
@@ -106,6 +126,24 @@ protected:
 private:
   using CommandMap_t = std::map<std::string, std::function<void(data_t cmddat)>>;
   CommandMap_t commands_;
+=======
+   * @brief Registers a mdoule command under the name `cmd`.
+   * Returns whether the command was inserted (false meaning that command `cmd` already exists)
+   */
+  template<typename Child>
+  void register_command(const std::string& name, void (Child::*f)(const data_t&));
+
+  DAQModule(DAQModule const&) = delete;            
+  DAQModule(DAQModule&&) = delete;                
+  DAQModule& operator=(DAQModule const&) = delete; 
+  DAQModule& operator=(DAQModule&&) = delete;     
+
+
+private:
+  using CommandMap_t = std::map<std::string, std::function<void(const data_t&)>>;
+  CommandMap_t commands_;
+
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 };
 
 /**
@@ -178,13 +216,17 @@ ERS_DECLARE_ISSUE_BASE(appfwk,                                ///< Namespace
                        ((std::string)reason)                  ///< Attribute of this class
 )
 
+
 } // namespace dunedaq
 
 #include "detail/DAQModule.hxx"
 
 #endif // APPFWK_INCLUDE_APPFWK_DAQMODULE_HPP_
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 // Local Variables:
 // c-basic-offset: 2
 // End:

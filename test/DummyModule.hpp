@@ -38,7 +38,13 @@ public:
     register_command("stuff", &DummyParentModule::do_stuff);
   }
 
+<<<<<<< HEAD
   virtual void do_stuff(data_t /*args*/)
+=======
+  void init(const nlohmann::json& ) final {}
+
+  virtual void do_stuff(const data_t& /*data*/)
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
   {
     ers::info(DummyModuleUpdate(ERS_HERE, get_name(), "DummyParentModule do_stuff"));
   };
@@ -51,7 +57,11 @@ public:
     : DummyParentModule(name)
   {}
 
+<<<<<<< HEAD
   void do_stuff(data_t /*args*/) override
+=======
+  void do_stuff(const data_t& /*data*/) override
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
   {
     ers::info(DummyModuleUpdate(ERS_HERE, get_name(), "DummyModule do_stuff"));
   };

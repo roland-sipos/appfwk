@@ -18,6 +18,9 @@
 #include "appfwk/DAQSource.hpp"
 #include "appfwk/ThreadHelper.hpp"
 
+// Our command data structures
+#include "appfwk/fdc/Structs.hpp"
+
 #include <ers/Issue.h>
 
 #include <future>
@@ -49,21 +52,39 @@ public:
   FakeDataConsumerDAQModule& operator=(FakeDataConsumerDAQModule&&) =
     delete; ///< FakeDataConsumerDAQModule is not move-assignable
 
+<<<<<<< HEAD
 private:
   // Command handlers
   void do_configure(data_t data);
   void do_unconfigure(data_t data);
   void do_start(data_t data);
   void do_stop(data_t data);
+=======
+  void init(const nlohmann::json& ) override;
+
+private:
+  // Commands
+  void do_configure(const data_t& data);
+  void do_start(const data_t& data);
+  void do_stop(const data_t& data);
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 
   // Threading
   void do_work(std::atomic<bool>& running_flag);
   ThreadHelper thread_;
 
+<<<<<<< HEAD
   // Generated configuration object
   FakeDataConsumerCfg cfg_;
 
   // Derived configurable quantities
+=======
+  // Configuration (for validation)
+  fdc::Conf cfg_;
+  // size_t nIntsPerVector_ = 999;
+  // int starting_int_ = -999;
+  // int ending_int_ = -999;
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
   std::chrono::milliseconds queueTimeout_;
   std::unique_ptr<DAQSource<std::vector<int>>> inputQueue_;
 };

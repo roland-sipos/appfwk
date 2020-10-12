@@ -7,10 +7,9 @@
  * received with this code.
  */
 
-#include "appfwk/DAQModule.hpp"
-#include "appfwk/DAQProcess.hpp"
-#include "appfwk/Queue.hpp"
-#include "appfwk/QueueRegistry.hpp"
+#include "appfwk/CommandLineInterpreter.hpp"
+#include "appfwk/DAQModuleManager.hpp"
+#include "appfwk/CommandFacility.hpp"
 
 #include "ers/Issue.h"
 #include <nlohmann/json.hpp>
@@ -27,6 +26,7 @@
  */
 using json = nlohmann::json;
 
+<<<<<<< HEAD
 namespace dunedaq {
 
 /**
@@ -99,6 +99,8 @@ ERS_DECLARE_ISSUE(appfwk,          // namespace
 )
 } // namespace dunedaq
 
+=======
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 /**
  * @brief Entry point for daq_application
  * @param argc Number of arguments
@@ -108,6 +110,7 @@ ERS_DECLARE_ISSUE(appfwk,          // namespace
 int
 main(int argc, char* argv[])
 {
+<<<<<<< HEAD
 
   auto args = dunedaq::appfwk::CommandLineInterpreter::ParseCommandLineArguments(argc, argv);
 
@@ -123,10 +126,24 @@ main(int argc, char* argv[])
     ifile >> json_config;
   } else {
     throw dunedaq::appfwk::NoConfiguration(ERS_HERE);
+=======
+  using namespace dunedaq::appfwk;
+
+  CommandLineInterpreter args;
+  try {
+    args = CommandLineInterpreter::parse(argc, argv);
+  } catch (ers::Issue& e) {
+    // Die but do it gracefully gracefully.
+    // Use of std::cout annoys the linter. 
+    std::cout << "Command-line parsing failed. Error:" << std::endl;
+    std::cout << e.message() << std::endl;
+    exit(-1);
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
   }
 
-  dunedaq::appfwk::daq_application_constructor gc(json_config);
-  theDAQProcess.register_modules(gc);
-
-  return theDAQProcess.listen();
+  DAQModuleManager manager;
+  auto cmdfac = makeCommandFacility(args.commandFacilityPluginName);
+  cmdfac->run(manager);
+  return 0;
 }
+

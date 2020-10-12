@@ -18,6 +18,9 @@
 #include "appfwk/DAQSink.hpp"
 #include "appfwk/ThreadHelper.hpp"
 
+// Our command structures.  
+#include "appfwk/fdp/Structs.hpp"
+
 #include <future>
 #include <memory>
 #include <string>
@@ -47,12 +50,22 @@ public:
   FakeDataProducerDAQModule& operator=(FakeDataProducerDAQModule&&) =
     delete; ///< FakeDataProducerDAQModule is not move-assignable
 
+<<<<<<< HEAD
 private:
   // Command handlers
   void do_configure(data_t data);
   void do_unconfigure(data_t data);
   void do_start(data_t data);
   void do_stop(data_t data);
+=======
+  void init(const nlohmann::json& ) override;
+
+private:
+  // Commands
+  void do_configure(const data_t& data);
+  void do_start(const data_t& data);
+  void do_stop(const data_t& data);
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 
   // Threading
   ThreadHelper thread_;
@@ -64,6 +77,16 @@ private:
   // Derived configurable quantities
   std::unique_ptr<DAQSink<std::vector<int>>> outputQueue_;
   std::chrono::milliseconds queueTimeout_;
+<<<<<<< HEAD
+=======
+
+  fdp::Conf cfg_;
+
+  // size_t nIntsPerVector_ = 999;
+  // int starting_int_ = -999;
+  // int ending_int_ = -999;
+  // size_t wait_between_sends_ms_ = 999;
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 };
 } // namespace appfwk
 

@@ -55,8 +55,15 @@ BOOST_AUTO_TEST_CASE(Configure)
 {
   dunedaq::appfwk::FanOutDAQModule<dunedaq::appfwk::NonCopyableType> foum("configure_test");
 
+<<<<<<< HEAD
   auto conf_data = R"({"input": "input", "fanout_mode": "round_robin", "outputs": []})"_json;
   foum.execute_command(cmd::IdNames::conf, conf_data);
+=======
+  auto module_config = R"({"input": "input", "fanout_mode": "round_robin", "outputs": []})"_json;
+  foum.init(module_config);
+
+  foum.execute_command("conf");
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 }
 
 BOOST_AUTO_TEST_CASE(InvalidConfigure)
@@ -64,6 +71,7 @@ BOOST_AUTO_TEST_CASE(InvalidConfigure)
   dunedaq::appfwk::FanOutDAQModule<dunedaq::appfwk::NonCopyableType> foum("invalid_configure_test");
 
   // Wrongly-capitalized fanout_mode
+<<<<<<< HEAD
   //auto conf_data = R"({"input": "input", "fanout_mode": "Round_robin", "outputs": []})"_json;
   nlohmann::json conf_data = {
       {"input", "input"},
@@ -71,6 +79,12 @@ BOOST_AUTO_TEST_CASE(InvalidConfigure)
       {"outputs", nlohmann::json::array()}};
   BOOST_REQUIRE_THROW(foum.execute_command(cmd::IdNames::conf, conf_data),
                       dunedaq::appfwk::ConfigureFailed);
+=======
+  auto module_config = R"({"input": "input", "fanout_mode": "Round_robin", "outputs": []})"_json;
+  foum.init(module_config);
+
+  BOOST_REQUIRE_THROW(foum.execute_command("conf"), dunedaq::appfwk::ConfigureFailed);
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 }
 
 BOOST_AUTO_TEST_CASE(NonCopyableTypeTest)
@@ -84,6 +98,7 @@ BOOST_AUTO_TEST_CASE(NonCopyableTypeTest)
                     "fanout_mode": "round_robin",
                     "wait_interval": 10000
         }
+<<<<<<< HEAD
     )"_json; // "
 
   DAQModule::data_t start_data = {{"run",42}}; // nb: not official schema!
@@ -95,6 +110,15 @@ BOOST_AUTO_TEST_CASE(NonCopyableTypeTest)
   // no Init command for foum.
   foum.execute_command(cmd::IdNames::conf, conf_data);
   foum.execute_command(cmd::IdNames::start, start_data);
+=======
+    )"_json;
+  foum.init(module_config);
+
+  // This test assumes RoundRobin mode. Once configurability is implemented,
+  // we'll have to configure it appropriately.
+  foum.execute_command("conf");
+  foum.execute_command("start");
+>>>>>>> 29dc0fb2a58beebbc254ce5688a54dbe22384f3e
 
   DAQSink<NonCopyableType> inputbuf("input");
   DAQSource<NonCopyableType> outputbuf1("output1");
